@@ -1,4 +1,4 @@
-name: Finalize hosted website links
+name: Update website offer
 
 on:
   push:
@@ -13,18 +13,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Update hosted asset and archive links
+      - name: Update offer and auction comparison
         run: |
           python - <<'PY'
           from pathlib import Path
+
           path = Path('index.html')
           text = path.read_text()
-          text = text.replace('assets/ohlke-sac-display-stamp.jpg', 'assets/ohlke-sac-display-stamp.webp')
-          text = text.replace('href="Ohlke_SAC_missile_display_sale_dossier.docx">Download sale dossier', 'href="https://drive.google.com/drive/folders/14j11Gdj-vmVNRk-QzA3r_DpyxX3Qil_A?usp=drive_link" target="_blank" rel="noopener">View full photo archive')
-          path.write_text(text)
+          old = '<aside class="offer"><span class="price">Offers around &pound;2,000</span><p>Private offers considered.'
+          comparison = (
+              '<aside class="offer"><div style="display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-start">'
+              '<span class="price" style="flex:1 1 150px">Offers around US$2,500</span>'
+              '<a href="https://www.sothebys.com/en/buy/auction/2021/fine-watches-3/gmt-master-ref-1675-property-of-brigadier-general-2" '
+              'target="_blank" rel="noopener" style="flex:2 1 220px;margin:4px 0 16px;color:#fff;line-height:1.45;font-weight:700;text-underline-offset:3px">'
+              "Known public auction comparison: Brigadier General Harold W. Ohlke's Rolex GMT-Master sold at Sotheby's for CHF 22,680, "
+              'against a CHF 10,000-15,000 estimate.</a></div><p>Private offers considered.'
+          )
+          if old not in text:
+              raise SystemExit('Expected offer markup was not found')
+          path.write_text(text.replace(old, comparison))
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Update website asset and archive links"
+          git commit -m "Update offer and Sotheby's comparison"
           git push
