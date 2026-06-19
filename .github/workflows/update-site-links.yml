@@ -1,4 +1,4 @@
-name: Identify missile models and add auction results
+name: Focus site on a single offer CTA
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Update missile identifications and market results
+      - name: Remove competing conversion buttons
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -21,23 +21,28 @@ jobs:
           path = Path('index.html')
           text = path.read_text()
 
-          old_notes = '''<section class="section white"><div class="wrap lead-grid"><div><p class="kicker">Model notes</p><h2>Three missiles, described conservatively</h2><p class="lead">Two missile identities appear likely from the form and known U.S. display-model comparables, while the third should remain pending until a specialist confirms it. This avoids overstating the object while still surfacing the important Cold War display context.</p></div><div><ul class="object-list"><li><strong>White missile</strong><span>45.5 cm high, circular base diameter 4 cm. Likely Titan I / SM-68 family display model, pending confirmation.</span></li><li><strong>Silver missile</strong><span>39 cm high, elliptical section approx. 8 cm x 5 cm. Likely Atlas / SM-65 family display model, pending confirmation.</span></li><li><strong>Silver and red missile</strong><span>36 cm high, elliptical section approx. 8 cm x 5 cm. Early U.S. missile/rocket display model, not conclusively identified.</span></li></ul></div></div></section>'''
-          new_notes = '''<section class="section white"><div class="wrap lead-grid"><div><p class="kicker">Model notes</p><h2>Three defining U.S. missiles, precisely identified</h2><p class="lead">This presentation brings together three unmistakable General Dynamics contractor models from the formative era of America's intercontinental ballistic missile force: the SM-68 Titan, SM-65 Atlas, and SM-65B Atlas. Their distinctive profiles, finishes, markings, and engine arrangements establish each identification.</p></div><div><ul class="object-list"><li><strong>SM-68 Titan (white)</strong><span>45.5 cm high, with a 4 cm circular base. The tallest model in the group, finished in white and carrying Strategic Air Command and U.S. Air Force insignia.</span></li><li><strong>SM-65 Atlas (silver and white)</strong><span>39 cm high, approximately 8 cm x 5 cm in section. Silver airframe with a white nose section, U.S. Air Force lettering, national insignia, and the Atlas three-engine configuration.</span></li><li><strong>SM-65B Atlas (silver and red)</strong><span>36 cm high, approximately 8 cm x 5 cm in section. Silver body with a red booster skirt and the distinctive SM-65B nose and engine arrangement.</span></li></ul></div></div></section>'''
+          replacements = {
+              '<a href="#enquire" class="nav-cta">Enquire</a>': '',
+              '<div class="hero-actions"><a class="button primary" href="#enquire">Make an enquiry</a><a class="button secondary" href="#provenance">Review the evidence</a></div>': '<div class="hero-actions"><a class="button primary" href="#enquire">Make an offer</a></div>',
+              '<div class="contact-actions"><button class="button primary" type="button" id="copyInquiry">Copy enquiry text</button><a class="button secondary" href="https://drive.google.com/drive/folders/14j11Gdj-vmVNRk-QzA3r_DpyxX3Qil_A?usp=drive_link" target="_blank" rel="noopener">View full photo archive</a></div>': '<p class="note"><a href="https://drive.google.com/drive/folders/14j11Gdj-vmVNRk-QzA3r_DpyxX3Qil_A?usp=drive_link" target="_blank" rel="noopener" style="color:#fff;font-weight:700;text-underline-offset:3px">View the full photo archive</a></p>',
+              '<p class="note" id="copyStatus" aria-live="polite">Enquiries can be made by replying through the channel where this page was shared.</p>': '<p class="note">To make an offer, reply through the channel where this page was shared.</p>',
+          }
 
-          old_market = '''<a href="https://www.rrauction.com/auctions/lot-detail/344854606193649-sm-65-atlas-general-dynamics-contractor-model/" target="_blank" rel="noopener" style="color:#fff;line-height:1.4;font-weight:700;text-underline-offset:3px">RR Auction comparable: General Dynamics Atlas contractor model sold for US$1,106</a>'''
-          new_market = '''<a href="https://www.rrauction.com/auctions/lot-detail/344854706193651-sm-68-titan-general-dynamics-contractor-model/" target="_blank" rel="noopener" style="color:#fff;line-height:1.4;font-weight:700;text-underline-offset:3px">RR Auction: SM-68 Titan contractor model sold for US$541</a><a href="https://www.rrauction.com/auctions/lot-detail/344854606193649-sm-65-atlas-general-dynamics-contractor-model/" target="_blank" rel="noopener" style="color:#fff;line-height:1.4;font-weight:700;text-underline-offset:3px">RR Auction: SM-65 Atlas contractor model sold for US$344</a><a href="https://www.rrauction.com/auctions/lot-detail/344854806193650-sm-65b-atlas-general-dynamics-contractor-model/" target="_blank" rel="noopener" style="color:#fff;line-height:1.4;font-weight:700;text-underline-offset:3px">RR Auction: SM-65B Atlas contractor model sold for US$541</a>'''
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'Expected site element was not found: {old[:80]}')
+              text = text.replace(old, new, 1)
 
-          if old_notes not in text:
-              raise SystemExit('Expected model-notes section was not found')
-          if old_market not in text:
-              raise SystemExit('Expected RR Auction market reference was not found')
+          script_start = text.find('const inquiryText=')
+          script_end = text.find('</script>', script_start)
+          if script_start == -1 or script_end == -1:
+              raise SystemExit('Expected copy-enquiry script was not found')
+          text = text[:script_start] + text[script_end:]
 
-          text = text.replace(old_notes, new_notes, 1)
-          text = text.replace(old_market, new_market, 1)
           path.write_text(text)
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Identify missile models and add auction results"
+          git commit -m "Focus site on a single offer CTA"
           git push
