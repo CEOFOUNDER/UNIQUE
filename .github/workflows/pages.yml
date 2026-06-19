@@ -1,5 +1,6 @@
 name: Deploy website to GitHub Pages
 
+# Publishes the current display-only site from the main branch.
 on:
   push:
     branches: [main]
