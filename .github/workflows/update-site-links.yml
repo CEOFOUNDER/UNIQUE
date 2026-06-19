@@ -1,0 +1,30 @@
+name: Finalize hosted website links
+
+on:
+  push:
+    paths:
+      - .github/workflows/update-site-links.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update hosted asset and archive links
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('index.html')
+          text = path.read_text()
+          text = text.replace('assets/ohlke-sac-display-stamp.jpg', 'assets/ohlke-sac-display-stamp.webp')
+          text = text.replace('href="Ohlke_SAC_missile_display_sale_dossier.docx">Download sale dossier', 'href="https://drive.google.com/drive/folders/14j11Gdj-vmVNRk-QzA3r_DpyxX3Qil_A?usp=drive_link" target="_blank" rel="noopener">View full photo archive')
+          path.write_text(text)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Update website asset and archive links"
+          git push
