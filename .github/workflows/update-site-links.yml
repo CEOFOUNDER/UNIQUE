@@ -1,4 +1,4 @@
-name: Focus site on a single offer CTA
+name: Convert site to display-only presentation
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Remove competing conversion buttons
+      - name: Remove buttons and display photographs statically
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -22,27 +22,29 @@ jobs:
           text = path.read_text()
 
           replacements = {
-              '<a href="#enquire" class="nav-cta">Enquire</a>': '',
-              '<div class="hero-actions"><a class="button primary" href="#enquire">Make an enquiry</a><a class="button secondary" href="#provenance">Review the evidence</a></div>': '<div class="hero-actions"><a class="button primary" href="#enquire">Make an offer</a></div>',
-              '<div class="contact-actions"><button class="button primary" type="button" id="copyInquiry">Copy enquiry text</button><a class="button secondary" href="https://drive.google.com/drive/folders/14j11Gdj-vmVNRk-QzA3r_DpyxX3Qil_A?usp=drive_link" target="_blank" rel="noopener">View full photo archive</a></div>': '<p class="note"><a href="https://drive.google.com/drive/folders/14j11Gdj-vmVNRk-QzA3r_DpyxX3Qil_A?usp=drive_link" target="_blank" rel="noopener" style="color:#fff;font-weight:700;text-underline-offset:3px">View the full photo archive</a></p>',
-              '<p class="note" id="copyStatus" aria-live="polite">Enquiries can be made by replying through the channel where this page was shared.</p>': '<p class="note">To make an offer, reply through the channel where this page was shared.</p>',
+              '.gallery{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}.main-image{border-radius:8px;overflow:hidden;background:linear-gradient(145deg,#eff2f2 0%,#d9e0e2 100%);box-shadow:var(--shadow)}.main-image img{width:100%;aspect-ratio:4/3;object-fit:contain;padding:18px}.thumbs{display:grid;gap:12px}.thumb{display:grid;grid-template-columns:90px 1fr;gap:12px;align-items:center;width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;text-align:left;background:var(--white);cursor:pointer;color:var(--ink);font:inherit}.thumb[aria-selected="true"]{border-color:var(--blue);box-shadow:0 0 0 3px rgba(23,63,103,.12)}.thumb img{width:90px;height:68px;object-fit:cover;border-radius:5px}.thumb span{font-size:14px;font-weight:700;line-height:1.25}': '.display-gallery{display:grid;grid-template-columns:2fr 1fr 1fr;gap:18px;align-items:stretch}.display-photo{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:linear-gradient(145deg,#eff2f2 0%,#d9e0e2 100%);box-shadow:0 8px 22px rgba(23,25,28,.1)}.display-photo img{width:100%;height:100%;min-height:280px;object-fit:contain;padding:16px}.display-photo figcaption{padding:11px 14px;border-top:1px solid var(--line);background:var(--white);color:var(--blue);font-size:14px;font-weight:700}',
+              '<div class="hero-actions"><a class="button primary" href="#enquire">Make an offer</a></div>': '',
+              '<div class="gallery" aria-label="Image gallery"><figure class="main-image"><img id="galleryImage" src="assets/ohlke-display-cutout-transparent.webp" alt="Isolated 1961 Strategic Air Command missile display to Harold W. Ohlke"></figure><div class="thumbs" role="listbox" aria-label="Select image"><button class="thumb" type="button" aria-selected="true" data-src="assets/ohlke-display-cutout-transparent.webp" data-alt="Isolated 1961 Strategic Air Command missile display to Harold W. Ohlke"><img src="assets/ohlke-display-cutout-transparent.webp" alt=""><span>Isolated display</span></button><button class="thumb" type="button" aria-selected="false" data-src="assets/ohlke-plaque-transparent.webp" data-alt="Isolated engraved plaque naming General Harold W. Ohlke"><img src="assets/ohlke-plaque-transparent.webp" alt=""><span>Named plaque</span></button><button class="thumb" type="button" aria-selected="false" data-src="assets/ohlke-sac-display-stamp.webp" data-alt="Underside stamp reading Welcome Protector"><img src="assets/ohlke-sac-display-stamp.webp" alt=""><span>Underside stamp</span></button></div></div>': '<div class="display-gallery" aria-label="Photographic record"><figure class="display-photo"><img src="assets/ohlke-display-cutout-transparent.webp" alt="Isolated 1961 Strategic Air Command missile display to Harold W. Ohlke"><figcaption>Complete presentation display</figcaption></figure><figure class="display-photo"><img src="assets/ohlke-plaque-transparent.webp" alt="Engraved plaque naming General Harold W. Ohlke"><figcaption>Named presentation plaque</figcaption></figure><figure class="display-photo"><img src="assets/ohlke-sac-display-stamp.webp" alt="Underside stamp reading Welcome Protector"><figcaption>Underside marking</figcaption></figure></div>',
+              '<section class="section blue" id="enquire"><div class="wrap cta-panel"><div><p class="kicker">Private offers and family-interest enquiries</p><h2>A rare named Ohlke/SAC display is available for consideration.</h2><p class="lead">The current owner is seeking serious interest from Ohlke families, Cold War collectors, USAF/SAC specialists, and militaria buyers. Specialist auction submissions have also been made in the UK.</p><p class="note"><a href="https://drive.google.com/drive/folders/14j11Gdj-vmVNRk-QzA3r_DpyxX3Qil_A?usp=drive_link" target="_blank" rel="noopener" style="color:#fff;font-weight:700;text-underline-offset:3px">View the full photo archive</a></p><p class="note">To make an offer, reply through the channel where this page was shared.</p></div>': '<section class="section blue" id="market"><div class="wrap cta-panel"><div><p class="kicker">Market context</p><h2>A rare named Ohlke/SAC display documented for reference.</h2><p class="lead">The presentation is shown for Ohlke families, Cold War collectors, USAF/SAC specialists, researchers, and militaria specialists. The object, its measurements, provenance evidence, and comparable auction records are presented together on this page.</p><p class="note"><a href="https://drive.google.com/drive/folders/14j11Gdj-vmVNRk-QzA3r_DpyxX3Qil_A?usp=drive_link" target="_blank" rel="noopener" style="color:#fff;font-weight:700;text-underline-offset:3px">View the full photo archive</a></p></div>',
+              '<span class="price">Offers invited: US$1,800&ndash;$2,800</span>': '<span class="price">Owner\'s reference range: US$1,800&ndash;$2,800</span>',
+              '<p>Private offers considered. Auction reserve held separately with the owner.</p>': '',
+              '<script>const galleryImage=document.querySelector("#galleryImage");const thumbs=[...document.querySelectorAll(".thumb")];thumbs.forEach(button=>{button.addEventListener("click",()=>{thumbs.forEach(item=>item.setAttribute("aria-selected","false"));button.setAttribute("aria-selected","true");galleryImage.src=button.dataset.src;galleryImage.alt=button.dataset.alt})});</script>': '',
+              '.lead-grid,.gallery,.cta-panel{grid-template-columns:1fr}': '.lead-grid,.display-gallery,.cta-panel{grid-template-columns:1fr}',
+              '.thumb{grid-template-columns:76px 1fr}.thumb img{width:76px;height:58px}': '.display-photo img{min-height:220px}',
           }
 
           for old, new in replacements.items():
               if old not in text:
-                  raise SystemExit(f'Expected site element was not found: {old[:80]}')
+                  raise SystemExit(f'Expected element was not found: {old[:100]}')
               text = text.replace(old, new, 1)
 
-          script_start = text.find('const inquiryText=')
-          script_end = text.find('</script>', script_start)
-          if script_start == -1 or script_end == -1:
-              raise SystemExit('Expected copy-enquiry script was not found')
-          text = text[:script_start] + text[script_end:]
+          if '<button' in text or 'class="button' in text:
+              raise SystemExit('A button remains in the page')
 
           path.write_text(text)
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Focus site on a single offer CTA"
+          git commit -m "Convert site to display-only presentation"
           git push
